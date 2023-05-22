@@ -1,0 +1,20 @@
+{
+  "name": "crayon",
+  "version": "0.0.1",
+  "dependencies": [
+    "asio",
+    "boost-core",
+    "boost-date-time",
+    "boost-endian",
+    "boost-iostreams",
+    "flecs",
+    "glm",
+    "hfsm2",
+    "libiconv",
+    "raylib",
+    "serdepp",
+    "sol2",
+    "spdlog",
+    "zlib"
+  ]
+}

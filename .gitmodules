@@ -1,0 +1,12 @@
+[submodule "dependencies/kaitai_struct"]
+	path = dependencies/kaitai_struct
+	url = https://github.com/ViteFalcon/kaitai_struct_cpp_stl_runtime.git
+[submodule "dependencies/raygui"]
+	path = dependencies/raygui
+	url = https://github.com/raysan5/raygui.git
+[submodule "dependencies/raudio"]
+	path = dependencies/raudio
+	url = https://github.com/raysan5/raudio.git
+[submodule "dependencies/rres"]
+	path = dependencies/rres
+	url = https://github.com/raysan5/rres.git
