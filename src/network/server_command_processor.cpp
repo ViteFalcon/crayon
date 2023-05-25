@@ -1,13 +1,11 @@
 #include "server_command_processor.h"
 
-#include <kaitai/kaitaistruct.h>
-#include <server_packets.h>
-
 #include <functional>
 #include <unordered_map>
 
 #include "login_events.h"
 #include "server_command_listener.h"
+#include "../precompiled/kaitai_struct.h"
 
 namespace crayon {
 /**

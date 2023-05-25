@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
-project(crayon CXX)
+project(crayon CXX C)
 
 set(CMAKE_CXX_STANDARD 23)
 add_executable(${PROJECT_NAME})
@@ -10,7 +10,9 @@ if (UNIX)
 elseif (WIN32)
     target_compile_definitions(${PROJECT_NAME} PUBLIC _WIN32_WINNT=0x0601 SOL_ALL_SAFETIES_ON=1)
 endif ()
+target_compile_features(${PROJECT_NAME} PUBLIC c_std_99)
 target_compile_definitions(${PROJECT_NAME} PUBLIC ASIO_HAS_BOOST_DATE_TIME)
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/precompiled/kaitai_struct.h)
 
 find_package(asio CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS date_time iostreams)
@@ -64,16 +66,16 @@ target_sources(${PROJECT_NAME}
  )
 
 set(LIBS
-        ${Boost_LIBRARIES}
-        Boost::date_time
-        Boost::iostreams
-        flecs::flecs_static
-        raylib
-        serdepp::serdepp
-        sol2
-        spdlog::spdlog
-        kaitai_struct_cpp_stl_runtime
-        )
+    ${Boost_LIBRARIES}
+    Boost::date_time
+    Boost::iostreams
+    flecs::flecs_static
+    raylib
+    serdepp::serdepp
+    sol2
+    spdlog::spdlog
+    kaitai_struct_cpp_stl_runtime
+)
 if (UNIX)
     list(APPEND LIBS Threads::Threads pthread)
 elseif (WIN32)
@@ -96,5 +98,13 @@ endif ()
 set(CRAYON_BIN_DIR "bin")
 set(CRAYON_BIN_ARCH_SUFFIX ".${CRAYON_ARCH}")
 
-target_include_directories(${PROJECT_NAME} PUBLIC "${HFSM2_INCLUDE_DIRS}" "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/kaitai_struct" "${KS_GEN_DIR}")
+SET(CRAYON_DEPENDENCIES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
+target_include_directories(
+    ${PROJECT_NAME}
+    PUBLIC
+    "${HFSM2_INCLUDE_DIRS}"
+    "${CRAYON_DEPENDENCIES_DIR}/kaitai_struct"
+    "${KS_GEN_DIR}"
+    "${CRAYON_DEPENDENCIES_DIR}/raygui/src"
+)
 target_link_libraries(${PROJECT_NAME} PUBLIC -static ${LIBS})
