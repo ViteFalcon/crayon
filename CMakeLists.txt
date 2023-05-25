@@ -76,6 +76,9 @@ set(LIBS
         )
 if (UNIX)
     list(APPEND LIBS Threads::Threads pthread)
+elseif (WIN32)
+    # Required for RayLib's HighRes timer
+    list(APPEND LIBS winmm.lib)
 endif ()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)

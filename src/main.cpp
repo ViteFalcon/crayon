@@ -1,18 +1,11 @@
-﻿#include <iostream>
-
-#include "core/string.h"
-
-#ifdef _WIN32
-#include <Windows.h>
+﻿#include <raylib.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include <codecvt>
-#else
-using UINT = unsigned int;
+#include <iostream>
 
-UINT GetConsoleOutputCP() { return 0; }
-
-void SetConsoleOutputCP(UINT _code_page) {}
-#endif  // _WIN32
+#include "core/string.h"
+#include "log.h"
 
 namespace crayon {
 /// <summary>
@@ -20,51 +13,75 @@ namespace crayon {
 /// </summary>
 class GameRunner {
  public:
-  GameRunner() : _original_code_page(::GetConsoleOutputCP()) {
-    ::SetConsoleOutputCP(CP_UTF8);
+  GameRunner() {
     std::setlocale(LC_ALL, "en_US.utf16");
+    // TODO: Select the monitor based on settings
+    // GetMonitorCount() can be used to test if the monitor setting should be honored
+    int current_monitor = ::GetCurrentMonitor();
+    int width = ::GetMonitorWidth(current_monitor);
+    int height = ::GetMonitorHeight(current_monitor);
+    ::InitWindow(width, height, "Crayon - rAthena Client");
   }
 
-  ~GameRunner() { ::SetConsoleOutputCP(_original_code_page); }
+  ~GameRunner() { ::CloseWindow(); }
 
   void run() {
-    String my_str = u"很有用👍";
-    std::cout << my_str.length() << std::endl;
+    String my_str = u"很有用";
+    log::debug(my_str.length());
     std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> converter;
-    std::cout << converter.to_bytes(my_str) << std::endl;
+    log::debug(converter.to_bytes(my_str));
     StringBytes bytes = to_bytes(my_str);
-    std::cout << "Total bytes: " << bytes.data.size() << std::endl;
-    for (int i = 0; i < bytes.glyphs.size(); ++i) {
-      std::cout << "\t";
-      std::uint64_t value = 0;
-      auto glyph_index_start = bytes.glyphs[i].index;
-      switch (bytes.glyphs[i].bytes) {
-        case 1:
-          value = bytes.data[glyph_index_start];
-          break;
-        default:
-          std::memcpy(&value, &bytes.data[glyph_index_start], bytes.glyphs[i].bytes);
-      }
-      std::cout << "[" << bytes.glyphs[i].bytes << "]" << std::showbase << std::hex << value << std::dec << std::endl;
+    log::debug("Total bytes: {}", bytes.data.size());
+    while (!WindowShouldClose()) {
+      run_frame(GetTime());
     }
-    FixedBytesString<23> v(my_str);
-    for (int i = 0; i < 23; ++i) {
-      std::cout << std::showbase << std::hex << (int)v.ptr()[i] << " ";
-    }
-    std::cout << std::endl;
   }
 
- private:
-  UINT _original_code_page;
+  void run_frame(double delta_time_sec) {
+    ::BeginDrawing();
+    ::ClearBackground(RAYWHITE);
+    ::EndDrawing();
+  }
 };
 }  // namespace crayon
+
+void raylib_log(int log_level, const char* text, va_list args) {
+  using namespace crayon::log;
+  static char buffer[1024];
+  sprintf_s(buffer, 1024, text, args);
+  switch (log_level) {
+    case LOG_TRACE:
+      trace(buffer);
+      break;
+    case LOG_DEBUG:
+      debug(buffer);
+      break;
+    case LOG_INFO:
+      info(buffer);
+      break;
+    case LOG_WARNING:
+      spdlog::warn(buffer);
+      break;
+    case LOG_ERROR:
+      error(buffer);
+      break;
+    case LOG_FATAL:
+    default:
+      critical(buffer);
+      break;
+  }
+}
 
 int main() {
   crayon::GameRunner game_runner;
   try {
+    spdlog::set_level(spdlog::level::debug);
+    SetTraceLogCallback(raylib_log);
+    auto console = spdlog::stdout_color_mt("console");
+    auto err_logger = spdlog::stderr_color_mt("stderr");
     game_runner.run();
   } catch (const std::exception& ex) {
-    std::cout << "Unexpected error. Reason: " << ex.what() << std::endl;
+    crayon::log::critical("Unexpected error. Reason: {}", ex.what());
   }
   return 0;
 }
