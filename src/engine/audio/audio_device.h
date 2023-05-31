@@ -1,7 +1,8 @@
 #pragma once
-#include <memory>
+#include <game/core/bounded_value.h>
 
-#include "../core/bounded_value.h"
+#include <memory>
+#include <string>
 
 namespace crayon {
 

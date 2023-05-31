@@ -1,4 +1,6 @@
 #pragma once
+#include <flecs.h>
+
 #include <optional>
 
 #include "game_enums.h"
@@ -33,5 +35,11 @@ class GameContext {
   /// </summary>
   /// <returns>Map server configuration</returns>
   virtual std::optional<ClientConfig> map_server_config() const = 0;
+
+  /// <summary>
+  /// Returns the current ECS world
+  /// </summary>
+  /// <returns>The current ECS world</returns>
+  virtual flecs::world& get_ecs_world() = 0;
 };
 }  // namespace crayon

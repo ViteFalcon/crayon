@@ -1,6 +1,6 @@
 #pragma once
 
-#include "enum_utils.h"
+#include "core/enum_utils.h"
 
 namespace crayon {
 

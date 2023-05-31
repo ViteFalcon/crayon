@@ -1,5 +1,6 @@
 #pragma once
 #include <cuchar>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -12,6 +13,8 @@ using String = std::u16string;
 using StringView = std::u16string_view;
 #endif
 
+extern const String EMPTY_STRING;
+
 struct CharacterIndex {
   size_t index;
   size_t bytes;
@@ -20,7 +23,14 @@ struct CharacterIndex {
 struct StringBytes {
   std::vector<char> data;
   std::vector<CharacterIndex> glyphs;
+
+  inline std::string to_str() const {
+    std::string result(&data[0], data.size());
+    return result;
+  }
 };
+
+std::string to_str(String value);
 
 StringBytes to_bytes(StringView value);
 

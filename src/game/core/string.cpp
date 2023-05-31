@@ -1,17 +1,27 @@
 #include "string.h"
 
+#include <codecvt>
 #include <cstdlib>  // MB_CUR_MAX
 #include <cuchar>
 
 namespace crayon {
+static const String EMPTY_STRING = u"";
+
 constexpr inline int UTF8_CHAR_MAX_BYTES = 4;
 constexpr inline auto BAD_CODE_POINT = ((size_t)-1);
+
+std::string to_str(String value) {
+  thread_local static std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> converter;
+  return converter.to_bytes(value);
+}
 
 StringBytes to_bytes(StringView value) {
 #ifdef STANDARD_CUCHAR_IMPLEMENTED
 #define TO_MULTIBYTE c8rtomb
+#define FROM_MULTIBYTE mbrtoc8
 #else
 #define TO_MULTIBYTE c16rtomb
+#define FROM_MULTIBYTE mbrtoc16
 #endif
 
   StringBytes result{

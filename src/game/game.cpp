@@ -1,9 +1,12 @@
 #include "game.h"
 
+#include <flecs.h>
+
 #include <cmath>
 #include <serdepp/serde.hpp>
 #include <sstream>
 
+#include "components/frame_info.h"
 #include "network/network_packet_builder.h"
 
 namespace crayon {
@@ -18,19 +21,23 @@ class MutableGameContext : public GameContext {
 
   std::optional<ClientConfig> map_server_config() const override { return _map_server_config; }
 
+  flecs::world& get_ecs_world() override { return _world; }
+
  public:  // These are intentially public because this will only be changed from within this game
   GameState _state = GameState::Start;
   std::optional<ClientConfig> _login_server_config;
   std::optional<ClientConfig> _char_server_config;
   std::optional<ClientConfig> _map_server_config;
+  flecs::world _world;
 };
 
 constexpr MutableGameContext& as_ref(std::unique_ptr<GameContext>& ptr) {
   return *dynamic_cast<MutableGameContext*>(ptr.get());
 }
 
-Game::Game()
-    : _server_command_processor(*this),
+Game::Game(EngineInterface& engine)
+    : _engine(engine),
+      _server_command_processor(*this),
       _login_connection(
           _io_context, [this]() { return _context->login_server_config(); }, _server_command_processor,
           ServerRequest::AuthKeepAlive),
@@ -41,8 +48,13 @@ Game::Game()
           _io_context, [this]() { return _context->map_server_config(); }, _server_command_processor,
           ServerRequest::RequestTime) {
   _context = std::make_unique<MutableGameContext>();
-  _background_thread = std::make_unique<std::jthread>([&]() -> void { _io_context.run(); });
-  as_ref(_context)._login_server_config = ClientConfig::for_host("localhost", 6900);
+  std::function<void(void)> io_context_runner = [this]() { _io_context.run(); };
+  _background_thread = std::make_unique<std::jthread>(io_context_runner);
+  _context->_login_server_config = ClientConfig::for_host("127.0.0.1", 6900);
+  _context->_world.set<FrameInfo>({
+      .frame_count = 0,
+      .delta_time_secs = 0.0,
+  });
 }
 
 Game::~Game() {
@@ -53,7 +65,13 @@ Game::~Game() {
 
 const GameContext& Game::get_context() const { return *_context; }
 
-void Game::update(float delta) {
+void Game::update(double delta) {
+  static auto& world = _context->_world;
+  const auto frame_info = world.get<FrameInfo>();
+  world.set<FrameInfo>({
+      .frame_count = frame_info->frame_count + 1,
+      .delta_time_secs = delta,
+  });
   _map_connection.read_one();
   _char_select_connection.read_one();
   _login_connection.read_one();
@@ -75,9 +93,7 @@ void Game::async_request_login(StringView username, StringView password) {
   });
 }
 
-void Game::on_login_success(const LoginSucceeded& response) {
-  // TODO: Trigger a signal
-}
+void Game::on_login_success(const LoginSucceeded& response) { _engine.show_server_selection(response.servers); }
 
 void Game::on_login_failed(const LoginFailed& response) { _login_connection.disconnect(); }
 

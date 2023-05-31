@@ -8,6 +8,7 @@
     "boost-endian",
     "boost-iostreams",
     "flecs",
+    "fmt",
     "glm",
     "hfsm2",
     "libiconv",

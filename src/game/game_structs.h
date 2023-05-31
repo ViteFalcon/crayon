@@ -1,10 +1,10 @@
 #pragma once
 #include <cstdint>
-#include <string>
 #include <vector>
 
-#include "../game_enums.h"
-#include "client_config.h"
+#include "core/string.h"
+#include "game_enums.h"
+#include "network/client_config.h"
 
 namespace crayon {
 
@@ -39,14 +39,4 @@ struct LoginSucceeded {
   std::vector<CharacterServer> servers;
 };
 
-class ServerCommandListener {
- public:
-  virtual void on_login_success(const LoginSucceeded& response) = 0;
-
-  virtual void on_login_failed(const LoginFailed& response) = 0;
-
-  virtual void on_banned(BanReason reason) = 0;
-
-  virtual void notify_error(std::string message) = 0;
-};
 }  // namespace crayon

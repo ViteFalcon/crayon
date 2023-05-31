@@ -12,11 +12,12 @@ elseif (WIN32)
 endif ()
 target_compile_features(${PROJECT_NAME} PUBLIC c_std_99)
 target_compile_definitions(${PROJECT_NAME} PUBLIC ASIO_HAS_BOOST_DATE_TIME)
-target_precompile_headers(${PROJECT_NAME} PRIVATE src/precompiled/kaitai_struct.h)
+target_precompile_headers(${PROJECT_NAME} PRIVATE src/game/precompiled/kaitai_struct.h)
 
 find_package(asio CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS date_time iostreams)
 find_package(flecs CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 find_path(HFSM2_INCLUDE_DIRS "hfsm2/machine.hpp")
 find_package(raylib CONFIG REQUIRED)
 find_package(serdepp CONFIG REQUIRED)
@@ -49,10 +50,10 @@ add_custom_command(
 		-t cpp_stl
 		--cpp-standard 11
 		-d "${KS_GEN_DIR}"
-		"${CMAKE_CURRENT_SOURCE_DIR}/src/network/server_packets.ksy"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src/game/network/server_packets.ksy"
     VERBATIM
 	DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/network/server_packets.ksy"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/game/network/server_packets.ksy"
 )
 
 # Get Sources
@@ -63,13 +64,14 @@ target_sources(${PROJECT_NAME}
     ${KS_SRCS}
     ${HEADERS}
     ${SOURCES}
- )
+)
 
 set(LIBS
     ${Boost_LIBRARIES}
     Boost::date_time
     Boost::iostreams
     flecs::flecs_static
+    fmt::fmt
     raylib
     serdepp::serdepp
     sol2
@@ -102,6 +104,7 @@ SET(CRAYON_DEPENDENCIES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
 target_include_directories(
     ${PROJECT_NAME}
     PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${HFSM2_INCLUDE_DIRS}"
     "${CRAYON_DEPENDENCIES_DIR}/kaitai_struct"
     "${KS_GEN_DIR}"
