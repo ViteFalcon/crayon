@@ -16,13 +16,16 @@ enum class LogLevel {
 };
 
 template <typename T>
-void log(LogLevel level, const T& msg);
+void log(LogLevel level, const T msg);
 
 template <>
-void log(LogLevel level, const std::string& message);
+void log(LogLevel level, const std::string message);
+
+template <>
+void log(LogLevel level, const char* message);
 
 template <typename T>
-void log(LogLevel level, const T& msg) {
+void log(LogLevel level, const T msg) {
   const std::string result = fmt::format(msg);
   log(level, result);
 }

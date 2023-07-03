@@ -21,7 +21,13 @@ void initialize() {
 }
 
 template <>
-void log(LogLevel level, const ::std::string& message) {
+void log(LogLevel level, const char* message) {
+  std::string str(message);
+  log(level, str);
+}
+
+template <>
+void log(LogLevel level, const ::std::string message) {
   switch (level) {
     case LogLevel::Trace:
       ::spdlog::trace(message);

@@ -2,7 +2,9 @@
 #include "engine/engine.h"
 #include "game/core/string.h"
 #include "game/game.h"
+#include "game/game_config.h"
 #include "game/log.h"
+#include "serdepp/adaptor/yaml-cpp.hpp"
 
 namespace crayon {
 /// <summary>
@@ -14,7 +16,7 @@ class GameRunner {
   Game _game;
 
  public:
-  GameRunner(String title) : _engine(title), _game(_engine) {}
+  GameRunner(const GameConfig& config, String title) : _engine(config, title), _game(_engine, config) {}
 
   void run() {
     GameUpdater updator = [this](double delta_time_secs) { _game.update(delta_time_secs); };
@@ -29,7 +31,9 @@ class GameRunner {
 }  // namespace crayon
 
 int main() {
-  crayon::GameRunner game_runner(u"Crayon - rAthena Client (很有用)");
+  serde::yaml cfg_node = YAML::LoadFile("data/crayon.yaml");
+  crayon::GameConfig config = serde::deserialize<crayon::GameConfig>(cfg_node);
+  crayon::GameRunner game_runner(config, u"Crayon - rAthena Client (很有用)");
   try {
     game_runner.run();
   } catch (const std::exception& ex) {

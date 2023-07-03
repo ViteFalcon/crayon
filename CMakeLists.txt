@@ -23,6 +23,7 @@ find_package(raylib CONFIG REQUIRED)
 find_package(serdepp CONFIG REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(yaml-cpp CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 
 add_subdirectory(dependencies)
@@ -77,6 +78,7 @@ set(LIBS
     sol2
     spdlog::spdlog
     kaitai_struct_cpp_stl_runtime
+    yaml-cpp
 )
 if (UNIX)
     list(APPEND LIBS Threads::Threads pthread)

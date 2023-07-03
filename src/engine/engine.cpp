@@ -42,7 +42,7 @@ static void raylib_log(int log_level, const char* text, va_list args) {
   }
 }
 
-Engine::Engine(const String title) {
+Engine::Engine(const GameConfig& config, const String title) : _config(config) {
   std::setlocale(LC_ALL, "en_US.utf16");
   ::SetTraceLogCallback(raylib_log);
   ::SetTraceLogLevel(LOG_DEBUG);

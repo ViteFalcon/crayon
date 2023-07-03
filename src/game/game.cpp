@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "components/frame_info.h"
+#include "log.h"
 #include "network/network_packet_builder.h"
 
 namespace crayon {
@@ -35,8 +36,9 @@ constexpr MutableGameContext& as_ref(std::unique_ptr<GameContext>& ptr) {
   return *dynamic_cast<MutableGameContext*>(ptr.get());
 }
 
-Game::Game(EngineInterface& engine)
+Game::Game(EngineInterface& engine, const GameConfig& config)
     : _engine(engine),
+      _config(config),
       _server_command_processor(*this),
       _login_connection(
           _io_context, [this]() { return _context->login_server_config(); }, _server_command_processor,
@@ -46,10 +48,10 @@ Game::Game(EngineInterface& engine)
           ServerRequest::CharKeepAlive),
       _map_connection(
           _io_context, [this]() { return _context->map_server_config(); }, _server_command_processor,
-          ServerRequest::RequestTime) {
+          ServerRequest::RequestTime),
+      _update_connections(false) {
   _context = std::make_unique<MutableGameContext>();
-  std::function<void(void)> io_context_runner = [this]() { _io_context.run(); };
-  _background_thread = std::make_unique<std::jthread>(io_context_runner);
+  _background_thread = std::make_unique<std::jthread>(std::bind_front(&Game::_background_tasks, this));
   _context->_login_server_config = ClientConfig::for_host("127.0.0.1", 6900);
   _context->_world.set<FrameInfo>({
       .frame_count = 0,
@@ -103,9 +105,8 @@ void Game::notify_error(std::string message) { std::cerr << message << std::endl
 
 void Game::_background_tasks(std::stop_token stop_token) {
   while (!stop_token.stop_requested()) {
-    // This task will take care of sending actions from user to server
-    // NOTE: This should not sync commands from the server to avoid concurrency issues
-    std::this_thread::yield();
+    _io_context.run_one();
   }
+  log::info("Stop thread requested!");
 }
 }  // namespace crayon

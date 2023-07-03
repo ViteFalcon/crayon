@@ -4,6 +4,7 @@
 
 #include "../game/core/string.h"
 #include "../game/engine_interface.h"
+#include "../game/game_config.h"
 
 namespace crayon {
 class AudioDevice;
@@ -12,7 +13,7 @@ using GameUpdater = std::function<void(double)>;
 
 class Engine : public EngineInterface {
  public:
-  Engine(const String title);
+  Engine(const GameConfig& config, const String title);
   ~Engine();
 
   void run(GameUpdater updater);
@@ -29,6 +30,7 @@ class Engine : public EngineInterface {
   void show_server_selection(const std::vector<CharacterServer> servers) override;
 
  private:
+  const GameConfig _config;
   std::unique_ptr<AudioDevice> _audio_device;
 };
 }  // namespace crayon

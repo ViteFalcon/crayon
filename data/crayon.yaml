@@ -1,0 +1,6 @@
+servers:
+    - name: Local Server
+      host: localhost
+      port: 6900
+bgm_dir: BGM
+title_bgm: country.mp3

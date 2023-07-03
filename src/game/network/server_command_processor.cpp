@@ -3,9 +3,9 @@
 #include <functional>
 #include <unordered_map>
 
+#include "../precompiled/kaitai_struct.h"
 #include "login_events.h"
 #include "server_command_listener.h"
-#include "../precompiled/kaitai_struct.h"
 
 namespace crayon {
 /**

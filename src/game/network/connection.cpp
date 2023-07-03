@@ -45,7 +45,7 @@ void Connection::async_write(const std::vector<char>& data) {
 }
 
 void Connection::read_one() {
-  if (!_stream) {
+  if (!_stream.socket().is_open()) {
     return;
   }
   _keep_alive_processor.update();

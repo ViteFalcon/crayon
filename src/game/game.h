@@ -7,6 +7,7 @@
 
 #include "core/string.h"
 #include "engine_interface.h"
+#include "game_config.h"
 #include "game_context.h"
 #include "network/connection.h"
 #include "network/server_command_listener.h"
@@ -18,7 +19,7 @@ class MutableGameContext;
 
 class Game : public ServerCommandListener {
  public:
-  Game(EngineInterface& engine);
+  Game(EngineInterface& engine, const GameConfig& config);
   ~Game();
 
   const GameContext& get_context() const;
@@ -40,6 +41,7 @@ class Game : public ServerCommandListener {
 
  private:
   EngineInterface& _engine;
+  const GameConfig _config;
   std::unique_ptr<MutableGameContext> _context;
   asio::io_context _io_context;
   // This is to stop io_context from running out of work: https://tinyurl.com/asio-work-guard
@@ -49,6 +51,7 @@ class Game : public ServerCommandListener {
   Connection _login_connection;
   Connection _char_select_connection;
   Connection _map_connection;
+  volatile bool _update_connections;
 };
 
 }  // namespace crayon
