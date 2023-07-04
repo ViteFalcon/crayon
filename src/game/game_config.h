@@ -1,21 +1,26 @@
 #pragma once
-#include <serdepp/serde.hpp>
+#include <filesystem>
+#include <vector>
+
+#include "network/client_config.h"
 
 namespace crayon {
-struct LoginServerInfo {
-  DERIVE_SERDE(LoginServerInfo, (&Self::name, "name"), (&Self::host, "host"), (&Self::port, "port"))
 
-  std::string name;
-  std::string host;
-  std::uint16_t port;
+class GameConfig {
+ public:
+  GameConfig(int arg_count, char** args);
+
+  inline auto root_directory() const { return _root_directory; }
+
+  inline std::filesystem::path resolve_data_file(std::string file) const { return _data_directory / file; }
+
+  inline std::filesystem::path resolve_bgm_path(std::string bgm_file) const { return _bgm_directory / bgm_file; }
+ private:
+  std::filesystem::path _root_directory;
+  std::filesystem::path _data_directory;
+  std::filesystem::path _bgm_directory;
+  std::string _title_bgm;
+  std::vector<ClientConfig> _login_servers;
 };
 
-struct GameConfig {
-  DERIVE_SERDE(GameConfig, (&Self::servers, "servers"), (&Self::bgm_directory, "bgm_directory"),
-               (&Self::title_bgm, "title_bgm"))
-
-  std::vector<LoginServerInfo> servers;
-  std::string bgm_directory;
-  std::string title_bgm;
-};
 }  // namespace crayon

@@ -11,6 +11,8 @@
 #include <raygui.h>
 #include <raylib.h>
 
+#include <filesystem>
+
 namespace crayon {
 
 static void raylib_log(int log_level, const char* text, va_list args) {

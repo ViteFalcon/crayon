@@ -4,7 +4,6 @@
 #include "game/game.h"
 #include "game/game_config.h"
 #include "game/log.h"
-#include "serdepp/adaptor/yaml-cpp.hpp"
 
 namespace crayon {
 /// <summary>
@@ -30,9 +29,8 @@ class GameRunner {
 };
 }  // namespace crayon
 
-int main() {
-  serde::yaml cfg_node = YAML::LoadFile("data/crayon.yaml");
-  crayon::GameConfig config = serde::deserialize<crayon::GameConfig>(cfg_node);
+int main(int arg_count, char** args) {
+  crayon::GameConfig config(arg_count, args);
   crayon::GameRunner game_runner(config, u"Crayon - rAthena Client (很有用)");
   try {
     game_runner.run();

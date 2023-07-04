@@ -15,7 +15,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC ASIO_HAS_BOOST_DATE_TIME)
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/game/precompiled/kaitai_struct.h)
 
 find_package(asio CONFIG REQUIRED)
-find_package(Boost REQUIRED COMPONENTS date_time iostreams)
+find_package(Boost REQUIRED COMPONENTS date_time iostreams program_options)
 find_package(flecs CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_path(HFSM2_INCLUDE_DIRS "hfsm2/machine.hpp")
