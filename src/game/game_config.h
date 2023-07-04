@@ -15,6 +15,9 @@ class GameConfig {
   inline std::filesystem::path resolve_data_file(std::string file) const { return _data_directory / file; }
 
   inline std::filesystem::path resolve_bgm_path(std::string bgm_file) const { return _bgm_directory / bgm_file; }
+
+  inline std::filesystem::path title_bgm_path() const { return resolve_bgm_path(_title_bgm); }
+
  private:
   std::filesystem::path _root_directory;
   std::filesystem::path _data_directory;

@@ -65,7 +65,7 @@ Engine::~Engine() {
 }
 
 void Engine::run(GameUpdater updater) {
-  _audio_device->set_bgm("C:\\Projects\\cpp\\crayon\\BGM\\country.mp3");
+  _audio_device->set_bgm(_config.title_bgm_path().string());
   while (!WindowShouldClose()) {
     run_frame(GetTime(), updater);
   }
