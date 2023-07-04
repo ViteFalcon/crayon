@@ -27,6 +27,7 @@ struct GameConfigData {
 class GameArgs {
  public:
   std::string root_directory;
+  std::string config_file;
 
   GameArgs(int arg_count, char** args) {
     namespace po = boost::program_options;
@@ -35,7 +36,8 @@ class GameArgs {
 
     program_options.add_options()(
         "root-dir,d", po::value<std::string>(&root_directory)->default_value(std::filesystem::current_path().string()),
-        "Root directory");
+        "Root directory")
+        ("config-file,c", po::value<std::string>(&config_file)->default_value("crayon.yaml"));
 
     po::variables_map variables;
     po::store(po::parse_command_line(arg_count, args, program_options), variables);
@@ -47,7 +49,7 @@ GameConfig::GameConfig(int arg_count, char** args) {
   GameArgs game_args(arg_count, args);
   _root_directory = std::filesystem::path(game_args.root_directory);
   _data_directory = _root_directory / "data";
-  auto config_file_path = resolve_data_file("crayon.yaml");
+  auto config_file_path = resolve_data_file(game_args.config_file);
   serde::yaml cfg_node = YAML::LoadFile(config_file_path.string());
   GameConfigData config = serde::deserialize<GameConfigData>(cfg_node);
   _bgm_directory = _root_directory / config.bgm_directory;
