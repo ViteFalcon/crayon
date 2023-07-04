@@ -16,12 +16,13 @@ struct ServerEndpoint {
 };
 
 struct GameConfigData {
-  DERIVE_SERDE(GameConfigData,
-               (&Self::servers, "servers")(&Self::bgm_directory, "bgm_directory")(&Self::title_bgm, "title_bgm"))
+  DERIVE_SERDE(GameConfigData, (&Self::servers, "servers")(&Self::bgm_directory, "bgm_directory")(
+                                   &Self::title_bgm, "title_bgm")(&Self::window_title, "window_title"))
 
   std::vector<ServerEndpoint> servers;
   std::string bgm_directory;
   std::string title_bgm;
+  std::string window_title;
 };
 
 /// <summary>
@@ -81,6 +82,7 @@ GameConfig::GameConfig(int arg_count, char** args) {
   GameConfigData config = serde::deserialize<GameConfigData>(cfg_node);
   _bgm_directory = validate_directory(_root_directory / config.bgm_directory, "Background Music");
   _title_bgm = config.title_bgm;
+  _window_title = config.window_title;
   _login_servers.reserve(config.servers.size());
   for (const auto& itr : config.servers) {
     auto server_config = ClientConfig::for_host(itr.host, itr.port);

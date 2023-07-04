@@ -13,7 +13,7 @@ using GameUpdater = std::function<void(double)>;
 
 class Engine : public EngineInterface {
  public:
-  Engine(const GameConfig& config, const String title);
+  Engine(const GameConfig& config);
   ~Engine();
 
   void run(GameUpdater updater);

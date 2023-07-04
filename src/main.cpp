@@ -15,7 +15,7 @@ class GameRunner {
   Game _game;
 
  public:
-  GameRunner(const GameConfig& config, String title) : _engine(config, title), _game(_engine, config) {}
+  GameRunner(const GameConfig& config) : _engine(config), _game(_engine, config) {}
 
   void run() {
     GameUpdater updator = [this](double delta_time_secs) { _game.update(delta_time_secs); };
@@ -31,7 +31,7 @@ class GameRunner {
 
 int main(int arg_count, char** args) {
   crayon::GameConfig config(arg_count, args);
-  crayon::GameRunner game_runner(config, u"Crayon - rAthena Client (很有用)");
+  crayon::GameRunner game_runner(config);
   try {
     game_runner.run();
   } catch (const std::exception& ex) {

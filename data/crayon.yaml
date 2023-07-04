@@ -1,4 +1,7 @@
-servers:
-    - { name: "Local Server", host: "127.0.0.1", port: 6900}
+﻿servers:
+    - name: Local Server
+      host: "127.0.0.1"
+      port: 6900
 bgm_directory: BGM
 title_bgm: country.mp3
+window_title: "Crayon - rAthena Client (很有用)"

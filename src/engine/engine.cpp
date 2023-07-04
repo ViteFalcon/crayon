@@ -44,7 +44,7 @@ static void raylib_log(int log_level, const char* text, va_list args) {
   }
 }
 
-Engine::Engine(const GameConfig& config, const String title) : _config(config) {
+Engine::Engine(const GameConfig& config) : _config(config) {
   std::setlocale(LC_ALL, "en_US.utf16");
   ::SetTraceLogCallback(raylib_log);
   ::SetTraceLogLevel(LOG_DEBUG);
@@ -54,8 +54,7 @@ Engine::Engine(const GameConfig& config, const String title) : _config(config) {
   int current_monitor = ::GetCurrentMonitor();
   int width = ::GetMonitorWidth(current_monitor);
   int height = ::GetMonitorHeight(current_monitor);
-  auto _title = to_str(title);
-  InitWindow(width, height, _title.c_str());
+  InitWindow(width, height, _config.window_title().c_str());
   _audio_device = std::make_unique<AudioDevice>();
 }
 

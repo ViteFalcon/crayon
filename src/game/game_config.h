@@ -18,11 +18,14 @@ class GameConfig {
 
   inline std::filesystem::path title_bgm_path() const { return resolve_bgm_path(_title_bgm); }
 
+  inline std::string window_title() const { return _window_title; }
+
  private:
   std::filesystem::path _root_directory;
   std::filesystem::path _data_directory;
   std::filesystem::path _bgm_directory;
   std::string _title_bgm;
+  std::string _window_title;
   std::vector<ClientConfig> _login_servers;
 };
 
