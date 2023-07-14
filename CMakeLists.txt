@@ -18,13 +18,14 @@ find_package(asio CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS date_time iostreams program_options)
 find_package(flecs CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
-find_path(HFSM2_INCLUDE_DIRS "hfsm2/machine.hpp")
+find_package(PhysFS CONFIG REQUIRED)
 find_package(raylib CONFIG REQUIRED)
 find_package(serdepp CONFIG REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
+find_path(HFSM2_INCLUDE_DIRS "hfsm2/machine.hpp")
 
 add_subdirectory(dependencies)
 
@@ -73,11 +74,12 @@ set(LIBS
     Boost::iostreams
     flecs::flecs_static
     fmt::fmt
+    kaitai_struct_cpp_stl_runtime
+    PhysFS::PhysFS-static
     raylib
     serdepp::serdepp
     sol2
     spdlog::spdlog
-    kaitai_struct_cpp_stl_runtime
     yaml-cpp
 )
 if (UNIX)
@@ -108,6 +110,7 @@ target_include_directories(
     PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${HFSM2_INCLUDE_DIRS}"
+    "${PHYSFS_INCLUDE_DIR}"
     "${CRAYON_DEPENDENCIES_DIR}/kaitai_struct"
     "${KS_GEN_DIR}"
     "${CRAYON_DEPENDENCIES_DIR}/raygui/src"
