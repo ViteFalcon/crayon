@@ -37,8 +37,8 @@ constexpr MutableGameContext& as_ref(std::unique_ptr<GameContext>& ptr) {
 }
 
 Game::Game(EngineInterface& engine, const GameConfig& config)
-    : _engine(engine),
-      _config(config),
+    : engine_(engine),
+      config_(config),
       _server_command_processor(*this),
       _login_connection(
           _io_context, [this]() { return _context->login_server_config(); }, _server_command_processor,
@@ -95,7 +95,7 @@ void Game::async_request_login(StringView username, StringView password) {
   });
 }
 
-void Game::on_login_success(const LoginSucceeded& response) { _engine.show_server_selection(response.servers); }
+void Game::on_login_success(const LoginSucceeded& response) { engine_.show_server_selection(response.servers); }
 
 void Game::on_login_failed(const LoginFailed& response) { _login_connection.disconnect(); }
 

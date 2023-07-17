@@ -13,7 +13,7 @@ using GameUpdater = std::function<void(double)>;
 
 class Engine : public EngineInterface {
  public:
-  Engine(const GameConfig& config);
+  Engine(const GameConfig& config, EngineResourceLoader& resource_loader);
   ~Engine();
 
   void run(GameUpdater updater);
@@ -29,8 +29,11 @@ class Engine : public EngineInterface {
 
   void show_server_selection(const std::vector<CharacterServer> servers) override;
 
+  EngineResourceLoader& resource_loader() { return resource_loader_; }
+
  private:
-  const GameConfig _config;
-  std::unique_ptr<AudioDevice> _audio_device;
+  const GameConfig config_;
+  EngineResourceLoader& resource_loader_;
+  std::unique_ptr<AudioDevice> audio_device_;
 };
 }  // namespace crayon

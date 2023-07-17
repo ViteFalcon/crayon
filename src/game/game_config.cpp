@@ -6,6 +6,8 @@
 #include <serdepp/adaptor/yaml-cpp.hpp>
 #include <serdepp/serde.hpp>
 
+#include "engine_interface.h"
+
 namespace crayon {
 struct ServerEndpoint {
   DERIVE_SERDE(ServerEndpoint, (&Self::name, "name")(&Self::host, "host")(&Self::port, "port"))
@@ -73,21 +75,23 @@ inline std::filesystem::path validate_file(std::filesystem::path path, std::stri
   return path;
 }
 
-GameConfig::GameConfig(int arg_count, char** args) {
+GameConfig::GameConfig(EngineResourceLoader& resource_loader, int arg_count, char** args)
+    : resource_loader_(resource_loader) {
   GameArgs game_args(arg_count, args);
-  _root_directory = validate_directory(std::filesystem::path(game_args.root_directory), "Root");
-  _data_directory = validate_directory(_root_directory / game_args.data_directory, "Data");
+  root_directory_ = validate_directory(std::filesystem::path(game_args.root_directory), "Root");
+  resource_loader_.set_root_dir(root_directory_);
+  data_directory_ = validate_directory(root_directory_ / game_args.data_directory, "Data");
   auto config_file_path = validate_file(resolve_data_file(game_args.config_file), "Config");
   serde::yaml cfg_node = YAML::LoadFile(config_file_path.string());
   GameConfigData config = serde::deserialize<GameConfigData>(cfg_node);
-  _bgm_directory = validate_directory(_root_directory / config.bgm_directory, "Background Music");
-  _title_bgm = config.title_bgm;
-  _window_title = config.window_title;
-  _login_servers.reserve(config.servers.size());
+  bgm_directory_ = validate_directory(root_directory_ / config.bgm_directory, "Background Music");
+  title_bgm_ = config.title_bgm;
+  window_title_ = config.window_title;
+  login_servers_.reserve(config.servers.size());
   for (const auto& itr : config.servers) {
     auto server_config = ClientConfig::for_host(itr.host, itr.port);
     server_config.name = itr.name;
-    _login_servers.push_back(server_config);
+    login_servers_.push_back(server_config);
   }
 }
 }  // namespace crayon

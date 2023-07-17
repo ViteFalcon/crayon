@@ -44,7 +44,8 @@ static void raylib_log(int log_level, const char* text, va_list args) {
   }
 }
 
-Engine::Engine(const GameConfig& config) : _config(config) {
+Engine::Engine(const GameConfig& config, EngineResourceLoader& resource_loader)
+    : config_(config), resource_loader_(resource_loader) {
   std::setlocale(LC_ALL, "en_US.utf16");
   ::SetTraceLogCallback(raylib_log);
   ::SetTraceLogLevel(LOG_DEBUG);
@@ -54,24 +55,24 @@ Engine::Engine(const GameConfig& config) : _config(config) {
   int current_monitor = ::GetCurrentMonitor();
   int width = ::GetMonitorWidth(current_monitor);
   int height = ::GetMonitorHeight(current_monitor);
-  InitWindow(width, height, _config.window_title().c_str());
-  _audio_device = std::make_unique<AudioDevice>();
+  InitWindow(width, height, config_.window_title().c_str());
+  audio_device_ = std::make_unique<AudioDevice>(resource_loader_);
 }
 
 Engine::~Engine() {
-  _audio_device.reset();
+  audio_device_.reset();
   CloseWindow();
 }
 
 void Engine::run(GameUpdater updater) {
-  _audio_device->set_bgm(_config.title_bgm_path().string());
+  audio_device_->set_bgm(config_.title_bgm_path().string());
   while (!WindowShouldClose()) {
     run_frame(GetTime(), updater);
   }
 }
 
 void Engine::run_frame(double delta_time_secs, GameUpdater updater) {
-  _audio_device->update();
+  audio_device_->update();
   ::BeginDrawing();
   ::ClearBackground(RAYWHITE);
   updater(delta_time_secs);

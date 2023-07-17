@@ -8,9 +8,11 @@ namespace crayon {
 
 class AudioStream;
 
+class EngineResourceLoader;
+
 class AudioDevice {
  public:
-  AudioDevice();
+  AudioDevice(EngineResourceLoader& resource_loader);
   ~AudioDevice();
 
   AudioDevice(const AudioDevice&) = delete;
@@ -20,11 +22,12 @@ class AudioDevice {
 
   void set_bgm(const std::string& path);
   void set_bgm_volume(const UnitFloat& volume);
-  UnitFloat get_bgm_volume() const { return _bgm_volume; }
+  UnitFloat get_bgm_volume() const { return bgm_volume_; }
 
  private:
-  std::unique_ptr<AudioStream> _bgm;
-  UnitFloat _bgm_volume;
+  EngineResourceLoader& resource_loader_;
+  std::unique_ptr<AudioStream> bgm_;
+  UnitFloat bgm_volume_;
 };
 
 }  // namespace crayon

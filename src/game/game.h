@@ -40,8 +40,8 @@ class Game : public ServerCommandListener {
   void _background_tasks(std::stop_token stop_token);
 
  private:
-  EngineInterface& _engine;
-  const GameConfig _config;
+  EngineInterface& engine_;
+  const GameConfig config_;
   std::unique_ptr<MutableGameContext> _context;
   asio::io_context _io_context;
   // This is to stop io_context from running out of work: https://tinyurl.com/asio-work-guard
