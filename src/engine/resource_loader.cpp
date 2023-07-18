@@ -2,6 +2,7 @@
 
 #include <physfs.h>
 
+#include "../game/game_options.h"
 #include "../game/log.h"
 
 namespace crayon {
@@ -36,29 +37,41 @@ class PhysFileReader {
     }
   }
 
-  ~PhysFileReader() { VERIFY_PHYSFS_CALL(PHYSFS_close(file_), "Failed to close read-only file: " + path_ + "'."); }
+  ~PhysFileReader() noexcept {
+    if (!PHYSFS_close(file_)) {
+      log::error(get_physfs_error("Failed to close read-only file: " + path_ + "'."));
+    }
+  }
+
+  std::size_t size() const { return PHYSFS_fileLength(file_); }
 
   void read_all_bytes(std::vector<char>& bytes) {
-    auto size = PHYSFS_fileLength(file_);
     bytes.clear();
-    bytes.reserve(size);
-    PHYSFS_readBytes(file_, &bytes[0], size);
+    auto file_size = size();
+    bytes.resize(file_size, 0);
+    PHYSFS_readBytes(file_, &bytes[0], file_size);
   }
 };
 
-ResourceLoader::ResourceLoader(const char* arg0) {
-  VERIFY_PHYSFS_CALL(PHYSFS_init(arg0), "Failed to initialize PhysFS.");
+ResourceLoader::ResourceLoader(const GameOptions& options) : options_(options) {
+  VERIFY_PHYSFS_CALL(PHYSFS_init(options.arg0()), "Failed to initialize PhysFS.");
+  VERIFY_PHYSFS_CALL(PHYSFS_mount(options.root_directory().string().c_str(), nullptr, 0),
+                     "Failed to set root directory for PhysFS.");
+  VERIFY_PHYSFS_CALL(PHYSFS_setSaneConfig(options.organization().c_str(), options.app_name().c_str(), "zip", 0, 0),
+                     "Failed to set sane configs.");
 }
 
-ResourceLoader::~ResourceLoader() { VERIFY_PHYSFS_CALL(PHYSFS_deinit(), "Failed to deinitialize PhysFS."); }
+ResourceLoader::~ResourceLoader() {
+  if (!PHYSFS_deinit()) {
+    log::critical(get_physfs_error("Failed to deinitialize PhysFS."));
+  }
+}
 
-void ResourceLoader::load_all_as_bytes(std::vector<char>& bytes, const std::string& path) {
-  PhysFileReader reader(path);
+void ResourceLoader::load_all_as_bytes(std::vector<char>& bytes, const AssetPath& path) {
+  PhysFileReader reader(path.string());
   reader.read_all_bytes(bytes);
 }
 
-void ResourceLoader::set_root_dir(const std::filesystem::path& directory) {
-  VERIFY_PHYSFS_CALL(PHYSFS_mount(directory.string().c_str(), nullptr, 0), "Failed to set root directory for PhysFS.");
-}
+std::size_t ResourceLoader::file_size(const AssetPath& path) const { return PhysFileReader(path.string()).size(); }
 
 }  // namespace crayon

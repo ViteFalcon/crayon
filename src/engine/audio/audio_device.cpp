@@ -1,47 +1,50 @@
+#ifdef _WIN32
+#define _WINUSER_
+#define _WINGDI_
+#define _IMM_
+#define _APISETCONSOLEL3_
+#endif  // _WIN32
 #include "audio_device.h"
 
 #include <raylib.h>
+
+#include <boost/algorithm/string.hpp>
 
 #include "game/engine_interface.h"
 
 namespace crayon {
 
-static const std::size_t MUSIC_BUFFER_SIZE = 3693847;
-static const std::size_t MUSIC_COUNT = 44;
-static const std::size_t TOTAL_MUSIC_BUFFER_SIZE = MUSIC_BUFFER_SIZE * MUSIC_COUNT;
-static std::vector<char> MUSIC_BUFFER(TOTAL_MUSIC_BUFFER_SIZE, 0);
-
 enum class MusicType { BACKGROUND, AMBIENT };
 
-Music raylib_load_music(EngineResourceLoader& resource_loader, const std::string& path) {
-  std::vector<char> bytes;
-  resource_loader.load_all_as_bytes(bytes, path);
+Music raylib_load_music(std::vector<char>& buffer, EngineResourceLoader& resource_loader, const std::string& path) {
+  resource_loader.load_all_as_bytes(buffer, path);
   std::filesystem::path music_path(path);
-  return LoadMusicStreamFromMemory(music_path.extension().string().c_str(), (const unsigned char*)&bytes[0],
-                                   bytes.size());
+  auto extension = boost::algorithm::to_lower_copy(music_path.extension().string());
+  return LoadMusicStreamFromMemory(extension.c_str(), (const unsigned char*)&buffer[0], buffer.size());
 }
 
 class AudioStream {
-  Music _instance;
-  UnitFloat _volume;
+  std::vector<char> buffer_;
+  Music instance_;
+  UnitFloat volume_;
 
  public:
   AudioStream(EngineResourceLoader& resource_loader, const std::string& path)
-      : _instance(raylib_load_music(resource_loader, path)) {}
+      : buffer_{}, instance_(raylib_load_music(buffer_, resource_loader, path)) {}
 
-  ~AudioStream() { UnloadMusicStream(_instance); }
+  ~AudioStream() noexcept { UnloadMusicStream(instance_); }
 
-  bool is_ready() const { return IsMusicReady(_instance); }
+  bool is_ready() const { return IsMusicReady(instance_); }
 
-  void play() { PlayMusicStream(_instance); }
+  void play() { PlayMusicStream(instance_); }
 
-  bool is_playing() const { return IsMusicStreamPlaying(_instance); }
+  bool is_playing() const { return IsMusicStreamPlaying(instance_); }
 
-  void stop() { StopMusicStream(_instance); }
+  void stop() { StopMusicStream(instance_); }
 
-  void set_volume(UnitFloat volume) { SetMusicVolume(_instance, volume); }
+  void set_volume(UnitFloat volume) { SetMusicVolume(instance_, volume); }
 
-  void update() { UpdateMusicStream(_instance); }
+  void update() { UpdateMusicStream(instance_); }
 };
 
 AudioDevice::AudioDevice(EngineResourceLoader& resource_loader)
@@ -57,7 +60,7 @@ void AudioDevice::update() {
   }
 }
 
-void AudioDevice::set_bgm(const std::string& path) {
+void AudioDevice::set_bgm(const AssetPath& path) {
   bgm_ = std::make_unique<AudioStream>(resource_loader_, path);
   bgm_->set_volume(bgm_volume_);
   bgm_->play();

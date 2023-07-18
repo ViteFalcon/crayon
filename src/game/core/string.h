@@ -59,4 +59,13 @@ class FixedBytesString {
   char _data[N];
 };
 
+void ltrim(std::string& value);
+
+void rtrim(std::string& value);
+
+inline void trim(std::string& value) {
+  ltrim(value);
+  rtrim(value);
+}
+
 }  // namespace crayon

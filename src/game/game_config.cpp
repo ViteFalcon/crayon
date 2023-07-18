@@ -7,6 +7,7 @@
 #include <serdepp/serde.hpp>
 
 #include "engine_interface.h"
+#include "game_options.h"
 
 namespace crayon {
 struct ServerEndpoint {
@@ -75,16 +76,15 @@ inline std::filesystem::path validate_file(std::filesystem::path path, std::stri
   return path;
 }
 
-GameConfig::GameConfig(EngineResourceLoader& resource_loader, int arg_count, char** args)
-    : resource_loader_(resource_loader) {
-  GameArgs game_args(arg_count, args);
-  root_directory_ = validate_directory(std::filesystem::path(game_args.root_directory), "Root");
-  resource_loader_.set_root_dir(root_directory_);
-  data_directory_ = validate_directory(root_directory_ / game_args.data_directory, "Data");
-  auto config_file_path = validate_file(resolve_data_file(game_args.config_file), "Config");
-  serde::yaml cfg_node = YAML::LoadFile(config_file_path.string());
+GameConfig::GameConfig(const GameOptions& options, EngineResourceLoader& resource_loader)
+    : options_(options), resource_loader_(resource_loader) {
+  root_directory_ = options.root_directory();
+  data_directory_ = AssetPath(options_.data_directory_name());
+  auto config_file_path = data_directory_ / options_.config_file_name();
+  auto cfg_yaml = resource_loader_.load_all_as_string(config_file_path);
+  serde::yaml cfg_node = YAML::Load(cfg_yaml.c_str());
   GameConfigData config = serde::deserialize<GameConfigData>(cfg_node);
-  bgm_directory_ = validate_directory(root_directory_ / config.bgm_directory, "Background Music");
+  bgm_directory_ = AssetPath(config.bgm_directory);
   title_bgm_ = config.title_bgm;
   window_title_ = config.window_title;
   login_servers_.reserve(config.servers.size());
@@ -94,4 +94,5 @@ GameConfig::GameConfig(EngineResourceLoader& resource_loader, int arg_count, cha
     login_servers_.push_back(server_config);
   }
 }
+
 }  // namespace crayon

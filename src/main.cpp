@@ -4,6 +4,7 @@
 #include "game/core/string.h"
 #include "game/game.h"
 #include "game/game_config.h"
+#include "game/game_options.h"
 #include "game/log.h"
 
 namespace crayon {
@@ -32,8 +33,10 @@ class GameRunner {
 }  // namespace crayon
 
 int main(int arg_count, char** args) {
-  crayon::ResourceLoader resource_loader(arg_count > 0 ? args[0] : nullptr);
-  crayon::GameConfig config(resource_loader, arg_count, args);
+  crayon::GameOptions options(arg_count, args);
+  crayon::log::info("Root directory: {}", options.root_directory().string());
+  crayon::ResourceLoader resource_loader(options);
+  crayon::GameConfig config(options, resource_loader);
   crayon::GameRunner game_runner(resource_loader, config);
   try {
     game_runner.run();

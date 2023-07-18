@@ -1,5 +1,6 @@
 #include "string.h"
 
+#include <algorithm>
 #include <codecvt>
 #include <cstdlib>  // MB_CUR_MAX
 #include <cuchar>
@@ -57,5 +58,13 @@ StringBytes to_bytes(StringView value) {
   }
   result.data.assign(&bytes[0], &bytes[0] + total_bytes);
   return result;
+}
+void ltrim(std::string& value) {
+  value.erase(value.begin(),
+              std::find_if(value.begin(), value.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+}
+void rtrim(std::string& value) {
+  value.erase(std::find_if(value.rbegin(), value.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(),
+              value.end());
 }
 }  // namespace crayon

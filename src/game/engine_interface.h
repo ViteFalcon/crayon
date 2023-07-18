@@ -1,6 +1,7 @@
 #pragma once
 #include <filesystem>
 
+#include "core/asset_path.h"
 #include "game_structs.h"
 
 namespace crayon {
@@ -11,27 +12,18 @@ class EngineResourceLoader {
   /// </summary>
   /// <param name="bytes"></param>
   /// <param name="path"></param>
-  inline void load_all_as_bytes(std::vector<char>& bytes, const String& path) {
-    load_all_as_bytes(bytes, to_str(path));
-  }
-
-  virtual void load_all_as_bytes(std::vector<char>& bytes, const std::string& path) = 0;
+  virtual void load_all_as_bytes(std::vector<char>& bytes, const AssetPath& path) = 0;
 
   /// <summary>
   /// Loads the entire resource as a string
   /// </summary>
   /// <param name="path">The path to the file</param>
   /// <returns></returns>
-  std::string load_all_as_string(const String& path) {
+  inline std::string load_all_as_string(const AssetPath& path) {
     std::vector<char> bytes;
     load_all_as_bytes(bytes, path);
     return std::string(&bytes[0], bytes.size());
   }
-
- protected:
-  friend class GameConfig;
-
-  virtual void set_root_dir(const std::filesystem::path& directory) { root_dir_ = directory; }
 
  private:
   std::filesystem::path root_dir_;

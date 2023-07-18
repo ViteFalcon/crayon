@@ -1,7 +1,9 @@
+#ifdef _WIN32
 #define _WINUSER_
 #define _WINGDI_
 #define _IMM_
 #define _APISETCONSOLEL3_
+#endif  // _WIN32
 #include "engine.h"
 
 #include <consoleapi3.h>

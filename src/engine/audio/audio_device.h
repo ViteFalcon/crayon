@@ -1,4 +1,5 @@
 #pragma once
+#include <game/core/asset_path.h>
 #include <game/core/bounded_value.h>
 
 #include <memory>
@@ -20,7 +21,7 @@ class AudioDevice {
 
   void update();
 
-  void set_bgm(const std::string& path);
+  void set_bgm(const AssetPath& path);
   void set_bgm_volume(const UnitFloat& volume);
   UnitFloat get_bgm_volume() const { return bgm_volume_; }
 
